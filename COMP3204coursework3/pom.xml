@@ -150,7 +150,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>uk.ac.soton.ecs.App</mainClass>
+              <mainClass>uk.ac.soton.ecs.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
