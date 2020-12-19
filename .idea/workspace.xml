@@ -86,7 +86,7 @@
       <option name="presentableId" value="Default" />
       <updated>1608142204532</updated>
       <workItem from="1608142205903" duration="436000" />
-      <workItem from="1608376989212" duration="1084000" />
+      <workItem from="1608376989212" duration="1908000" />
     </task>
     <servers />
   </component>
@@ -98,6 +98,10 @@
       <screen x="0" y="25" width="1440" height="875" />
     </state>
     <state x="408" y="202" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.25.1440.875@0.25.1440.875" timestamp="1608377106005" />
+    <state x="487" y="53" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1608379162744">
+      <screen x="0" y="25" width="1440" height="875" />
+    </state>
+    <state x="487" y="53" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.25.1440.875@0.25.1440.875" timestamp="1608379162744" />
     <state width="1398" height="228" key="GridCell.Tab.0.bottom" timestamp="1608147149038">
       <screen x="0" y="25" width="1440" height="875" />
     </state>
