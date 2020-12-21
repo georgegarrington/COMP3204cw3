@@ -14,14 +14,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Class" />
+        <option value="Interface" />
       </list>
-    </option>
-  </component>
-  <component name="MavenImportPreferences">
-    <option name="generalSettings">
-      <MavenGeneralSettings>
-        <option name="mavenHome" value="$APPLICATION_HOME_DIR$/plugins/maven/lib/maven3" />
-      </MavenGeneralSettings>
     </option>
   </component>
   <component name="ProjectId" id="1lkXkIqHYedsRujinMaOKNcU73C" />
@@ -58,6 +52,17 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Application.Main" />
@@ -75,40 +80,14 @@
       <workItem from="1608142205903" duration="436000" />
       <workItem from="1608376989212" duration="2162000" />
       <workItem from="1608393364686" duration="1173000" />
+      <workItem from="1608400878782" duration="253000" />
+      <workItem from="1608550562950" duration="115000" />
+      <workItem from="1608550714678" duration="151000" />
+      <workItem from="1608550953806" duration="11353000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="408" y="202" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1608377106005">
-      <screen x="0" y="25" width="1440" height="875" />
-    </state>
-    <state x="408" y="202" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.25.1440.875@0.25.1440.875" timestamp="1608377106005" />
-    <state x="487" y="53" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1608379162744">
-      <screen x="0" y="25" width="1440" height="875" />
-    </state>
-    <state x="487" y="53" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.25.1440.875@0.25.1440.875" timestamp="1608379162744" />
-    <state width="1398" height="228" key="GridCell.Tab.0.bottom" timestamp="1608147149038">
-      <screen x="0" y="25" width="1440" height="875" />
-    </state>
-    <state width="1398" height="228" key="GridCell.Tab.0.bottom/0.25.1440.875@0.25.1440.875" timestamp="1608147149038" />
-    <state width="1398" height="228" key="GridCell.Tab.0.center" timestamp="1608147149037">
-      <screen x="0" y="25" width="1440" height="875" />
-    </state>
-    <state width="1398" height="228" key="GridCell.Tab.0.center/0.25.1440.875@0.25.1440.875" timestamp="1608147149037" />
-    <state width="1398" height="228" key="GridCell.Tab.0.left" timestamp="1608147149035">
-      <screen x="0" y="25" width="1440" height="875" />
-    </state>
-    <state width="1398" height="228" key="GridCell.Tab.0.left/0.25.1440.875@0.25.1440.875" timestamp="1608147149035" />
-    <state width="1398" height="228" key="GridCell.Tab.0.right" timestamp="1608147149037">
-      <screen x="0" y="25" width="1440" height="875" />
-    </state>
-    <state width="1398" height="228" key="GridCell.Tab.0.right/0.25.1440.875@0.25.1440.875" timestamp="1608147149037" />
-    <state x="-9" y="41" key="SettingsEditor" timestamp="1608142410169">
-      <screen x="0" y="25" width="1440" height="875" />
-    </state>
-    <state x="-9" y="41" key="SettingsEditor/0.25.1440.875@0.25.1440.875" timestamp="1608142410169" />
   </component>
 </project>

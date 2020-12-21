@@ -15,8 +15,7 @@ public class DataLoader {
 
     /**
      * Groups images into their respective classes determined by the directories they
-     * are in, use for supervised learning methods i.e. so not KNN as this detects
-     * classes by doing clustering it is an unsupervised method
+     * are in, use for supervised learning methods
      * @return
      */
     public VFSGroupDataset<FImage> loadSupervisedTrainingData(String dirPath){
@@ -37,9 +36,10 @@ public class DataLoader {
     public VFSListDataset<FImage> loadUnsupervisedTrainingData(String dirPath){
         return loadTestingData(dirPath);
     }
+    // ^^^ think this is unnecessary! Just flatten the group training data into a single list in the model classes
 
     /**
-     * Testing data is unlabelled
+     * Testing data is unlabelled, so load it as just one list of images
      * @return
      */
     public VFSListDataset<FImage> loadTestingData(String dirPath){
