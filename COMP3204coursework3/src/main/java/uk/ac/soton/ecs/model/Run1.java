@@ -64,7 +64,7 @@ public class Run1 implements Model {
 
         //Use k-fold cross validation on the training data to estimate the accuracy of the model
         GroupedRandomSplitter<String, FImage> splitter =
-                new GroupedRandomSplitter(trainingData, 10, 10,10);
+                new GroupedRandomSplitter(trainingData, 10, 0,10);
 
         ClassificationEvaluator<CMResult<String>, String, FImage> folds =
             new ClassificationEvaluator(classifier, splitter.getTrainingDataset(),
@@ -88,7 +88,6 @@ public class Run1 implements Model {
          */
         @Override
         public FloatFV extractFeature(FImage image) {
-
             int sqSize = Math.min(image.getWidth(), image.getHeight());
             //Normalise it first so that it has 0 mean and unit length
             FImage centered = image.normalise().extractCenter(sqSize, sqSize);
