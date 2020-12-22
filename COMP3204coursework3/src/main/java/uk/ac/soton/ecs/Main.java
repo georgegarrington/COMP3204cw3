@@ -42,9 +42,9 @@ public class Main {
         };
 
         VFSGroupDataset<FImage> trainingData =
-                loader.loadSupervisedTrainingData(genPathStr(trainingDirArr));
+                loader.loadSupervisedTrainingData("C:\\Users\\User\\Downloads\\training\\training");
         VFSListDataset<FImage> testingData =
-                loader.loadTestingData(genPathStr(testingDirArr));
+                loader.loadTestingData("C:\\Users\\User\\Downloads\\testing\\testing");
 
         //I want to get the path to work relative to the source directory
         //but I can't figure out how, says we have to use URIs or something.
@@ -59,7 +59,7 @@ public class Main {
 
         Model[] models = new Model[]{
                 new Run1(trainingData, testingData),
-                new Run2(trainingData, testingData)
+                //new Run2(trainingData, testingData)
         };
 
         for(Model m : models){
