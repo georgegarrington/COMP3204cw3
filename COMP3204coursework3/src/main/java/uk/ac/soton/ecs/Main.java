@@ -59,7 +59,7 @@ public class Main {
 
         Model[] models = new Model[]{
                 new Run1(trainingData, testingData),
-                new Run2(trainingData, testingData)
+                //new Run2(trainingData, testingData)
         };
 
         for(Model m : models){

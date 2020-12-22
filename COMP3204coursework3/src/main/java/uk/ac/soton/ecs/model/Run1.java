@@ -20,25 +20,13 @@ public class Run1 implements Model {
 
     private static int K = 1;
     private static final int RESOLUTION = 16;
-
-    //Probably too many fields
-    private VFSGroupDataset<FImage> trainingData;
-    private VFSListDataset<FImage> testingData;
     private KNNAnnotator<FImage, String, FloatFV> classifier;
-    private List<ClassificationResult<String>> results;
+    private GroupedRandomSplitter<String, FImage> splitter;
 
     public Run1(VFSGroupDataset<FImage> trainingData, VFSListDataset<FImage> testingData){
-        this.trainingData = trainingData;
-        this.testingData = testingData;
         classifier = KNNAnnotator.create(new Flattener(), FloatFVComparison.EUCLIDEAN, K);
-        results = new ArrayList<ClassificationResult<String>>();
-        this.init();
-    }
-
-    //TODO Don't think we need this
-    private void init(){
-
-
+        //Use k-fold cross validation on the training data to estimate the accuracy of the model
+        splitter = new GroupedRandomSplitter(trainingData, 90, 0,10);
     }
 
     /**
@@ -47,11 +35,7 @@ public class Run1 implements Model {
      * instance in the testing data is in and store this in the "results" field
      */
     public void run(){
-        classifier.trainMultiClass(trainingData);
-        /*
-        for(FImage image : testingData){
-            results.add(classifier.classify(image));
-        }*/
+        classifier.trainMultiClass(splitter.getTrainingDataset());
     }
 
     /**
@@ -61,18 +45,11 @@ public class Run1 implements Model {
      * on the training data
      */
     public void report(){
-
-        //Use k-fold cross validation on the training data to estimate the accuracy of the model
-        GroupedRandomSplitter<String, FImage> splitter =
-                new GroupedRandomSplitter(trainingData, 10, 0,10);
-
         ClassificationEvaluator<CMResult<String>, String, FImage> folds =
-            new ClassificationEvaluator(classifier, splitter.getTrainingDataset(),
+            new ClassificationEvaluator(classifier, splitter.getTestDataset(),
                 new CMAnalyser<FImage, String>(CMAnalyser.Strategy.SINGLE));
-
         System.out.println("\n--------------------RUN 1 REPORT--------------------\n");
-        System.out.println(folds.analyse(folds.evaluate()).getDetailReport());
-
+        System.out.println(folds.analyse(folds.evaluate()).getSummaryReport());
     }
 
     /**
@@ -89,41 +66,17 @@ public class Run1 implements Model {
         @Override
         public FloatFV extractFeature(FImage image) {
             int sqSize = Math.min(image.getWidth(), image.getHeight());
-            //Normalise it first so that it has 0 mean and unit length
-            FImage centered = image.normalise().extractCenter(sqSize, sqSize);
+
+            // crops each image to a square about the centre
+            FImage centered = image.extractCenter(sqSize, sqSize);
+
             //Shrink the image to the resolution, make sure to keep the same aspect ratio (probably unnecessary as its square)
             FImage shrunk = centered.process(
                     new ResizeProcessor(RESOLUTION, RESOLUTION, true));
-            //Flatten the pixel matrix into a vector
 
-            float[] vector = shrunk.getFloatPixelVector();
-            float mean = 0;
-            float sd = 0;
-            float sum = 0;
-
-            for(float f : vector){
-                sum += f;
-            }
-            mean = sum / vector.length;
-
-            sum = 0;
-            for(int i = 0; i < vector.length; i++){
-                sum += Math.pow(vector[i] - mean, 2);
-            }
-            sd = (float) Math.sqrt(sum / vector.length - 1);
-
-            /*
-            Subtract by the main and divide by standard deviation to
-            zero the mean and make unit length, I think?
-             */
-            for(int i = 0; i < vector.length; i++){
-                vector[i] -= mean;
-                vector[i] /= sd;
-            }
-
-            return new FloatFV(shrunk.getFloatPixelVector());
+            //Normalise it first so that it has 0 mean and unit length, Flatten the pixel matrix into a vector
+            return new FloatFV(shrunk.normalise().getFloatPixelVector());
         }
-
     }
 
 }
