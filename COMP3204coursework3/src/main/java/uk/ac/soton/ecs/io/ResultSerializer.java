@@ -10,6 +10,13 @@ import java.util.List;
  */
 public class ResultSerializer {
 
+    /**
+     *
+     *
+     * @param filename
+     * @param results
+     * @throws FileNotFoundException
+     */
     public void serializeResults(String filename, List<String> results) throws FileNotFoundException {
 
         PrintWriter pw = new PrintWriter(new File(filename + ".txt"));
@@ -21,6 +28,7 @@ public class ResultSerializer {
             pw.println(s);
         }
         pw.close();
+
     }
 
 }

@@ -48,6 +48,7 @@ public class Main {
         VFSListDataset<FImage> testingData =
                 loader.loadTestingData(genPathStr(testingDirArr));
 
+
         //I want to get the path to work relative to the source directory
         //but I can't figure out how, says we have to use URIs or something.
         //Does anyone know?

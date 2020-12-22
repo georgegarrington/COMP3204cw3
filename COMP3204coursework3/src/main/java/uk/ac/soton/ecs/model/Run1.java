@@ -27,8 +27,8 @@ public class Run1 implements Model {
     public Run1(VFSGroupDataset<FImage> trainingData, VFSListDataset<FImage> testingData){
         this.testingData = testingData;
         classifier = KNNAnnotator.create(new Flattener(), FloatFVComparison.EUCLIDEAN, K);
-        //Use k-fold cross validation on the training data to estimate the accuracy of the model
-        splitter = new GroupedRandomSplitter(trainingData, 90, 0,10);
+        //Use cross validation on the training data to estimate the accuracy of the model
+        splitter = new GroupedRandomSplitter(trainingData, 80, 0,20);
     }
 
     /**
@@ -55,8 +55,6 @@ public class Run1 implements Model {
     }
 
     public List<String> getResultsArr(){
-
-        System.out.println("Started getResultsAee");
 
         List<String> results = new ArrayList<String>();
         FileObject[] arr = testingData.getFileObjects();
