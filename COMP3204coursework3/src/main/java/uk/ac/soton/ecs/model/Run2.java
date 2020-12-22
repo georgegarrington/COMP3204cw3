@@ -4,6 +4,8 @@ import org.openimaj.data.dataset.VFSGroupDataset;
 import org.openimaj.data.dataset.VFSListDataset;
 import org.openimaj.image.FImage;
 
+import java.util.List;
+
 public class Run2 implements Model {
 
     VFSGroupDataset<FImage> trainingData;
@@ -26,6 +28,16 @@ public class Run2 implements Model {
 
     public void report(){
 
+    }
+
+    public List<String> getResultsArr(){
+
+        return null;
+
+    }
+
+    public String toString(){
+        return "run2";
     }
 
 }

@@ -11,11 +11,13 @@ import org.openimaj.image.colour.RGBColour;
 import org.openimaj.image.processing.convolution.FGaussianConvolve;
 import org.openimaj.image.typography.hershey.HersheyFont;
 import uk.ac.soton.ecs.io.DataLoader;
+import uk.ac.soton.ecs.io.ResultSerializer;
 import uk.ac.soton.ecs.model.Model;
 import uk.ac.soton.ecs.model.Run1;
 import uk.ac.soton.ecs.model.Run2;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 public class Main {
 
@@ -62,9 +64,18 @@ public class Main {
                 //new Run2(trainingData, testingData)
         };
 
+        ResultSerializer rs = new ResultSerializer();
+
         for(Model m : models){
+
             m.run();
             m.report();
+            try {
+                rs.serializeResults(m.toString(),m.getResultsArr());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
         }
 
     }

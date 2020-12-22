@@ -1,5 +1,7 @@
 package uk.ac.soton.ecs.model;
 
+import java.util.List;
+
 public interface Model {
 
     /**
@@ -15,5 +17,7 @@ public interface Model {
      * report the accuracy of the model
      */
     public void report();
+
+    public List<String> getResultsArr();
 
 }

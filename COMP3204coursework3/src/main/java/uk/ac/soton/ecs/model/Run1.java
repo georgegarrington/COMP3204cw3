@@ -1,5 +1,6 @@
 package uk.ac.soton.ecs.model;
 
+import org.apache.commons.vfs2.FileObject;
 import org.openimaj.data.dataset.VFSGroupDataset;
 import org.openimaj.data.dataset.VFSListDataset;
 import org.openimaj.experiment.dataset.split.GroupedRandomSplitter;
@@ -13,17 +14,18 @@ import org.openimaj.image.processing.resize.ResizeProcessor;
 import org.openimaj.ml.annotation.basic.KNNAnnotator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Run1 implements Model {
 
-    private static int K = 1;
+    private static int K = 2;
     private static final int RESOLUTION = 16;
+    private VFSListDataset<FImage> testingData;
     private KNNAnnotator<FImage, String, FloatFV> classifier;
     private GroupedRandomSplitter<String, FImage> splitter;
 
     public Run1(VFSGroupDataset<FImage> trainingData, VFSListDataset<FImage> testingData){
+        this.testingData = testingData;
         classifier = KNNAnnotator.create(new Flattener(), FloatFVComparison.EUCLIDEAN, K);
         //Use k-fold cross validation on the training data to estimate the accuracy of the model
         splitter = new GroupedRandomSplitter(trainingData, 90, 0,10);
@@ -52,6 +54,30 @@ public class Run1 implements Model {
         System.out.println(folds.analyse(folds.evaluate()).getSummaryReport());
     }
 
+    public List<String> getResultsArr(){
+
+        System.out.println("Started getResultsAee");
+
+        List<String> results = new ArrayList<String>();
+        FileObject[] arr = testingData.getFileObjects();
+        String[] names = new String[arr.length];
+
+        for(int i = 0; i < arr.length; i++){
+            names[i] = arr[i].getName().getBaseName();
+        }
+
+        for(int i = 0; i < names.length; i++){
+
+            String str = names[i] + " " + classifier.classify(testingData.get(i)).getPredictedClasses().toArray()[0];
+            results.add(str);
+            System.out.println("Just classified an image");
+            System.out.println(str);
+
+        }
+        return results;
+
+    }
+
     /**
      * KNN annotator will use this to flatten each image into the vector of
      * pixels it will use
@@ -77,6 +103,11 @@ public class Run1 implements Model {
             //Normalise it first so that it has 0 mean and unit length, Flatten the pixel matrix into a vector
             return new FloatFV(shrunk.normalise().getFloatPixelVector());
         }
+
+    }
+
+    public String toString(){
+        return "run1";
     }
 
 }

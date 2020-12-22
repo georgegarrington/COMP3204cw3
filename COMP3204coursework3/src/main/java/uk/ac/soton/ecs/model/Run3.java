@@ -10,4 +10,8 @@ public class Run3 {
 
     }
 
+    public String toString(){
+        return "run3";
+    }
+
 }
