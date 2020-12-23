@@ -15,6 +15,7 @@ import org.openimaj.ml.annotation.basic.KNNAnnotator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Run1 implements Model {
 
@@ -66,7 +67,20 @@ public class Run1 implements Model {
 
         for(int i = 0; i < names.length; i++){
 
-            String str = names[i] + " " + classifier.classify(testingData.get(i)).getPredictedClasses().toArray()[0];
+            FImage image = testingData.get(i);
+            String name = names[i];
+            Set<String> predictedClasses = classifier.classify(image).getPredictedClasses();
+
+            for(String predictedClassName : predictedClasses){
+
+
+
+            }
+
+            System.out.println("The number of predicted classes is: " + predictedClasses.size());
+            String str = name + " " + predictedClasses.toArray()[0];
+
+
             results.add(str);
             System.out.println("Just classified an image");
             System.out.println(str);
