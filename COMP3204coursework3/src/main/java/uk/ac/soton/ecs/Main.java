@@ -21,6 +21,19 @@ import java.io.FileNotFoundException;
 
 public class Main {
 
+    private static final String GOPIKA_TESTING = "C:\\Users\\gopik\\Downloads\\testing\\testing";
+    private static final String GOPIKA_TRAINING = "C:\\Users\\gopik\\Downloads\\training\\training";
+    private static final String GEORGE_TESTING = genPathStr(new String[]{
+            System.getProperty("user.home"),
+            "Desktop",
+            "testing"
+    });
+    private static final String GEORGE_TRAINING = genPathStr(new String[]{
+            System.getProperty("user.home"),
+            "Desktop",
+            "training"
+    });
+
     public static void main(String[] args) {
 
         DataLoader loader = new DataLoader();
@@ -32,22 +45,11 @@ public class Main {
         array of strings like this, good to do like this as some of us have
         Mac and Windows so this works on both
          */
-        String[] trainingDirArr = new String[]{
-                System.getProperty("user.home"),
-                "Desktop",
-                "training"
-        };
-        String[] testingDirArr = new String[]{
-                System.getProperty("user.home"),
-                "Desktop",
-                "testing"
-        };
 
         VFSGroupDataset<FImage> trainingData =
-                loader.loadSupervisedTrainingData("C:\\Users\\gopik\\Downloads\\training\\training");
+                loader.loadSupervisedTrainingData(GEORGE_TRAINING);
         VFSListDataset<FImage> testingData =
-                loader.loadTestingData("C:\\Users\\gopik\\Downloads\\testing\\testing");
-
+                loader.loadTestingData(GEORGE_TESTING);
 
         //I want to get the path to work relative to the source directory
         //but I can't figure out how, says we have to use URIs or something.
