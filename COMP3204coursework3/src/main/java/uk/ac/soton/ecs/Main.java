@@ -44,9 +44,9 @@ public class Main {
         };
 
         VFSGroupDataset<FImage> trainingData =
-                loader.loadSupervisedTrainingData(genPathStr(trainingDirArr));
+                loader.loadSupervisedTrainingData("C:\\Users\\gopik\\Downloads\\training\\training");
         VFSListDataset<FImage> testingData =
-                loader.loadTestingData(genPathStr(testingDirArr));
+                loader.loadTestingData("C:\\Users\\gopik\\Downloads\\testing\\testing");
 
 
         //I want to get the path to work relative to the source directory
