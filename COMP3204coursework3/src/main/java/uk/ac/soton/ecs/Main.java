@@ -70,7 +70,7 @@ public class Main {
         for(Model m : models){
 
             m.run();
-            m.report();
+            //m.report();
             try {
                 rs.serializeResults(m.toString(),m.getResultsArr());
             } catch (FileNotFoundException e) {

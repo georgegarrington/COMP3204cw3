@@ -1,8 +1,13 @@
 package uk.ac.soton.ecs.model;
 
 import de.bwaldvogel.liblinear.SolverType;
+import org.apache.commons.vfs2.FileObject;
 import org.openimaj.data.dataset.VFSGroupDataset;
 import org.openimaj.data.dataset.VFSListDataset;
+import org.openimaj.experiment.dataset.split.GroupedRandomSplitter;
+import org.openimaj.experiment.evaluation.classification.ClassificationEvaluator;
+import org.openimaj.experiment.evaluation.classification.analysers.confusionmatrix.CMAnalyser;
+import org.openimaj.experiment.evaluation.classification.analysers.confusionmatrix.CMResult;
 import org.openimaj.feature.FeatureExtractor;
 import org.openimaj.feature.FloatFV;
 import org.openimaj.feature.SparseIntFV;
@@ -17,9 +22,8 @@ import org.openimaj.ml.clustering.assignment.HardAssigner;
 import org.openimaj.ml.clustering.kmeans.FloatKMeans;
 import org.openimaj.util.pair.IntFloatPair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import javax.swing.*;
+import java.util.*;
 
 public class Run2 implements Model {
 
@@ -27,10 +31,13 @@ public class Run2 implements Model {
     private static final int STEP = 4;
     VFSGroupDataset<FImage> trainingData;
     VFSListDataset<FImage> testingData;
+    GroupedRandomSplitter<String, FImage> splitter;
+    LiblinearAnnotator classifier;
 
     public Run2(VFSGroupDataset<FImage> trainingData, VFSListDataset<FImage> testingData){
         this.trainingData = trainingData;
         this.testingData = testingData;
+        splitter = new GroupedRandomSplitter(trainingData, 80, 0,20);
     }
 
     public void run(){
@@ -45,12 +52,30 @@ public class Run2 implements Model {
         FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(500);
         FloatCentroidsResult clusters = fkm.cluster(imagePatchVectors.toArray(new float[][]{}));
         HardAssigner<float[], float[], IntFloatPair> assigner = clusters.defaultHardAssigner();
-        LiblinearAnnotator classifier = new LiblinearAnnotator<FImage, String>(
+        classifier = new LiblinearAnnotator<FImage, String>(
                 new WordsExtractor(assigner), LiblinearAnnotator.Mode.MULTICLASS, SolverType.L2R_L2LOSS_SVC,
                 1, 0.00001
         );
 
-        classifier.train(trainingData);
+        System.out.println("Starting training...");
+        Calendar start = Calendar.getInstance();
+        classifier.train(splitter.getTrainingDataset());
+        Calendar finish = Calendar.getInstance();
+        System.out.println("Training finished in: " + (finish.getTimeInMillis() - start.getTimeInMillis()) / 1000);
+
+    }
+
+    public void report(){
+
+        System.out.println("Starting evaluation...");
+        Calendar start = Calendar.getInstance();
+        ClassificationEvaluator<CMResult<String>, String, FImage> folds =
+                new ClassificationEvaluator(classifier, splitter.getTestDataset(),
+                        new CMAnalyser<FImage, String>(CMAnalyser.Strategy.SINGLE));
+        System.out.println("\n--------------------RUN 1 REPORT--------------------\n");
+        System.out.println(folds.analyse(folds.evaluate()).getSummaryReport());
+        Calendar finish = Calendar.getInstance();
+        System.out.println("Evaluation finished in: " + (finish.getTimeInMillis() - start.getTimeInMillis()) / 1000);
 
     }
 
@@ -141,14 +166,39 @@ public class Run2 implements Model {
 
     }
 
-
-    public void report(){
-
-    }
-
     public List<String> getResultsArr(){
 
-        return null;
+        List<String> results = new ArrayList<String>();
+        FileObject[] arr = testingData.getFileObjects();
+        String[] names = new String[arr.length];
+
+        for(int i = 0; i < arr.length; i++){
+            names[i] = arr[i].getName().getBaseName();
+        }
+
+        for(int i = 0; i < names.length; i++){
+
+            FImage image = testingData.get(i);
+            String name = names[i];
+            Set<String> predictedClasses = classifier.classify(image).getPredictedClasses();
+
+            for(String predictedClassName : predictedClasses){
+
+
+
+            }
+
+            System.out.println("The number of predicted classes is: " + predictedClasses.size());
+            String str = name + " " + predictedClasses.toArray()[0];
+
+
+            results.add(str);
+            System.out.println("Just classified an image");
+            System.out.println(str);
+
+        }
+
+        return results;
 
     }
 
