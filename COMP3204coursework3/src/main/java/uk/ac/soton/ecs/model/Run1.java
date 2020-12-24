@@ -17,13 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class Run1 implements Model {
+public class Run1 extends Model {
 
     private static int K = 2;
     private static final int RESOLUTION = 16;
-    private VFSListDataset<FImage> testingData;
-    private KNNAnnotator<FImage, String, FloatFV> classifier;
-    private GroupedRandomSplitter<String, FImage> splitter;
+    protected KNNAnnotator<FImage, String, FloatFV> classifier;
 
     public Run1(VFSGroupDataset<FImage> trainingData, VFSListDataset<FImage> testingData){
         this.testingData = testingData;
@@ -37,6 +35,7 @@ public class Run1 implements Model {
      * given in the constructor, and then make predictions of what class each
      * instance in the testing data is in and store this in the "results" field
      */
+    @Override
     public void run(){
         classifier.trainMultiClass(splitter.getTrainingDataset());
     }
@@ -47,6 +46,7 @@ public class Run1 implements Model {
      * report the accuracy of the model by doing k-fold cross validation
      * on the training data
      */
+    @Override
     public void report(){
         ClassificationEvaluator<CMResult<String>, String, FImage> folds =
             new ClassificationEvaluator(classifier, splitter.getTestDataset(),
@@ -55,6 +55,7 @@ public class Run1 implements Model {
         System.out.println(folds.analyse(folds.evaluate()).getSummaryReport());
     }
 
+    @Override
     public List<String> getResultsArr(){
 
         List<String> results = new ArrayList<String>();
@@ -71,21 +72,15 @@ public class Run1 implements Model {
             String name = names[i];
             Set<String> predictedClasses = classifier.classify(image).getPredictedClasses();
 
-            for(String predictedClassName : predictedClasses){
-
-
-
-            }
-
             System.out.println("The number of predicted classes is: " + predictedClasses.size());
             String str = name + " " + predictedClasses.toArray()[0];
-
 
             results.add(str);
             System.out.println("Just classified an image");
             System.out.println(str);
 
         }
+
         return results;
 
     }

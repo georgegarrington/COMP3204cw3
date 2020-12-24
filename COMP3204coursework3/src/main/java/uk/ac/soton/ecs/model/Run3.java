@@ -1,6 +1,8 @@
 package uk.ac.soton.ecs.model;
 
-public class Run3 {
+import java.util.List;
+
+public class Run3 extends Model {
 
     public Run3(){
         this.init();
@@ -14,4 +16,19 @@ public class Run3 {
         return "run3";
     }
 
+    @Override
+    public void run() {
+
+
+    }
+
+    @Override
+    public void report() {
+
+    }
+
+    @Override
+    public List<String> getResultsArr() {
+        return null;
+    }
 }

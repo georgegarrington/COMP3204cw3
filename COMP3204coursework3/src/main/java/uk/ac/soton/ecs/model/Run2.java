@@ -29,18 +29,13 @@ import org.openimaj.ml.clustering.FloatCentroidsResult;
 import org.openimaj.ml.clustering.assignment.HardAssigner;
 import org.openimaj.ml.clustering.kmeans.FloatKMeans;
 import org.openimaj.util.pair.IntFloatPair;
-
-import javax.swing.*;
 import java.util.*;
 
-public class Run2 implements Model {
+public class Run2 extends Model {
 
     private static final int PATCH_SIZE = 8;
     private static final int STEP = 4;
-    VFSGroupDataset<FImage> trainingData;
-    VFSListDataset<FImage> testingData;
-    GroupedRandomSplitter<String, FImage> splitter;
-    LiblinearAnnotator classifier;
+    private LiblinearAnnotator classifier;
 
     public Run2(VFSGroupDataset<FImage> trainingData, VFSListDataset<FImage> testingData){
         this.trainingData = trainingData;
@@ -48,6 +43,7 @@ public class Run2 implements Model {
         splitter = new GroupedRandomSplitter(trainingData, 80, 0,20);
     }
 
+    @Override
     public void run(){
 
         List<LocalFeatureList<FloatKeypoint>> patchVectorsForAllImages = new ArrayList();
@@ -56,15 +52,15 @@ public class Run2 implements Model {
         int counter = 0;
         for(FImage i : trainingData){
             patchVectorsForAllImages.add(getPatchSamples(i, 30));
-            System.out.println("Finished getting the samples from sample: " + counter);
+            System.out.println("Finished getting the samples from image: " + counter);
             counter++;
         }
 
         FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(600);
         DataSource<float[]> src = new LocalFeatureListDataSource<FloatKeypoint, float[]>(patchVectorsForAllImages);
-        System.out.println("now going to start the clustering...");
+        System.out.println("Starting clustering...");
         FloatCentroidsResult clusters = fkm.cluster(src);
-        System.out.println("finished clustering");
+        System.out.println("Finished clustering...");
         HardAssigner<float[], float[], IntFloatPair> assigner = clusters.defaultHardAssigner();
         classifier = new LiblinearAnnotator<FImage, String>(
                 new WordsExtractor(assigner), LiblinearAnnotator.Mode.MULTICLASS, SolverType.L2R_L2LOSS_SVC,
@@ -76,55 +72,7 @@ public class Run2 implements Model {
 
     }
 
-    public void runOld(){
-
-        /*
-        //Get the total number of images in the training data set
-        int totalSize = 0;
-        for(String str : trainingData.getGroups()){
-            totalSize += trainingData.get(trainingData).size();
-        }*/
-
-        //float[][] imagePatchVectors = new float[totalSize][];
-
-        //The sampled patch vectors for each image
-
-        /*
-
-        VERSION 1
-
-        List<float[]> imagePatchVectors = new ArrayList();
-
-        //int i = 0;
-
-        System.out.println("Starting patch sampling...");
-        int i = 0;
-        for(FImage image : trainingData){
-            List<float[]> patchVectors = getPatchSamples(image, 50);
-            System.out.println("Just finished sampling image: " + i);
-            i++;
-            imagePatchVectors.addAll(patchVectors);
-        }
-
-        FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(600);
-        System.out.println("Now going to try the array bit that wasn't working");
-        FloatCentroidsResult clusters = fkm.cluster(imagePatchVectors.toArray(new float[][]{}));
-        System.out.println("It worked :)");
-        HardAssigner<float[], float[], IntFloatPair> assigner = clusters.defaultHardAssigner();
-        classifier = new LiblinearAnnotator<FImage, String>(
-                new WordsExtractor(assigner), LiblinearAnnotator.Mode.MULTICLASS, SolverType.L2R_L2LOSS_SVC,
-                1, 0.00001
-        );
-
-        System.out.println("Starting training...");
-        Calendar start = Calendar.getInstance();
-        classifier.train(splitter.getTrainingDataset());
-        Calendar finish = Calendar.getInstance();
-        System.out.println("Training finished in: " + (finish.getTimeInMillis() - start.getTimeInMillis()) / 1000);
-        */
-
-    }
-
+    @Override
     public void report(){
 
         System.out.println("Starting evaluation...");
@@ -139,19 +87,8 @@ public class Run2 implements Model {
 
     }
 
-    public void preProcess(){
-
-        /*
-        for(FImage image : trainingData){
-
-            List<LocalFeatureImpl<SpatialLocation, FloatFV>> samples = getPatchSamples(image, 30);
-
-        }*/
-
-    }
-
     /**
-     * Take a sample of size n patches from the image (in the form
+     * Take a sample of size n from the patches of the image (in the form
      * of the feature vectors of the patches)
      * @param image
      * @param n
@@ -164,66 +101,34 @@ public class Run2 implements Model {
     }
 
     /**
-     * Get n sample patches from the given image, where each element in the list returned
-     * is a pair of the patch' feature vector and a spatial location
+     * Get ALL the feature vectors from the patches of the given image
      * @param image
      * @return
      */
     public MemoryLocalFeatureList<FloatKeypoint> getPatchVectors(FImage image){
 
-        List<Rectangle> patchRectangles = getPatchRectangles(image);
-        //List<FloatKeypoint> keyPoints = new ArrayList<>();
-        //List<LocalFeatureImpl<SpatialLocation, FloatFV>> featureLocs = new ArrayList();
-
+        List<Rectangle> patchRectangles =
+                new RectangleSampler(image, STEP, STEP, PATCH_SIZE, PATCH_SIZE).allRectangles();
         MemoryLocalFeatureList<FloatKeypoint> patchVectors = new MemoryLocalFeatureList();
 
         for(Rectangle r : patchRectangles){
 
-            //Get the image patch defined by the bounds of the rectangle
-            //TODO might be too expensive to process every single patch, later we could
-            //TODO do this only in the patches we randomly sampled
-
             /*
-            For each patch, mean center and normalise it
+            extractROI will get the actual patch of the image (a subimage of the image)
+            represented by the bounds of the rectangle. For each patch, mean center and normalise it
              */
             FImage patch = image.extractROI(r).process(new MeanCenter()).normalise();
-
-                /*
-                Flatten the pixels of the patch into a vector, and put in a FloatFV
-                which is basically just a wrapper for the float vector
-                 */
-            //FloatFV fv = new FloatFV(patch.getFloatPixelVector());
-
-            //SpatialLocation loc = new SpatialLocation(r.x, r.y);
-
-            //A list of pairs of spatial location and feature vector
-            //LocalFeatureImpl<SpatialLocation, FloatFV> featureLoc = new LocalFeatureImpl(loc, fv);
 
             FloatKeypoint keyPoint = new FloatKeypoint(r.x, r.y, 0, 1, patch.getFloatPixelVector());
             patchVectors.add(keyPoint);
 
         }
 
-        //In order to get a random sample of size n, shuffle the list and take the first n
-        //Collections.shuffle(patchVectors);
-        //return patchVectors.subList(0, n);
-
         return patchVectors;
 
     }
 
-    /**
-     * Get the rectangular bounds to make patches of the image with the given step and patch sizes
-     * @param image
-     * @return
-     */
-    public List<Rectangle> getPatchRectangles(FImage image){
-
-        RectangleSampler sampler = new RectangleSampler(image, STEP, STEP, PATCH_SIZE, PATCH_SIZE);
-        return sampler.allRectangles();
-
-    }
-
+    @Override
     public List<String> getResultsArr(){
 
         List<String> results = new ArrayList<String>();
@@ -237,23 +142,9 @@ public class Run2 implements Model {
         for(int i = 0; i < names.length; i++){
 
             FImage image = testingData.get(i);
-            String name = names[i];
             Set<String> predictedClasses = classifier.classify(image).getPredictedClasses();
-
-            for(String predictedClassName : predictedClasses){
-
-
-
-            }
-
-
-            //System.out.println("The number of predicted classes is: " + predictedClasses.size());
-            String str = name + " " + predictedClasses.toArray()[0];
-
-
-            results.add(str);
-            //System.out.println("Just classified an image");
-           // System.out.println(str);
+            //If there are multiple classes predicted then just choose the first one in the array form of the set
+            results.add(names[i] + " " + predictedClasses.toArray()[0]);
 
         }
 
@@ -273,13 +164,6 @@ public class Run2 implements Model {
             bag = new BagOfVisualWords(assigner);
         }
 
-        /*
-        public SparseIntFV extractFeatureOld(FImage object) {
-            MemoryLocalFeatureList<FloatKeypoint> patchSamples = getPatchSamples(object, 20);
-            //return bag.aggregateVectorsRaw(patchSamples);
-            return null;
-        }*/
-
         @Override
         public SparseIntFV extractFeature(FImage image) {
 
@@ -288,6 +172,7 @@ public class Run2 implements Model {
             return aggegator.aggregate(getPatchVectors(image), image.getBounds());
 
         }
+
     }
 
 }
