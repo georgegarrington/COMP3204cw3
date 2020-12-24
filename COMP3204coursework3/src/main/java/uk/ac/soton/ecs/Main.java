@@ -61,8 +61,8 @@ public class Main {
         //DisplayUtilities.display("testing data", testingData);
 
         Model[] models = new Model[]{
-                new Run1(trainingData, testingData),
-                //new Run2(trainingData, testingData)
+                //new Run1(trainingData, testingData),
+                new Run2(trainingData, testingData)
         };
 
         ResultSerializer rs = new ResultSerializer();
@@ -70,7 +70,7 @@ public class Main {
         for(Model m : models){
 
             m.run();
-            //m.report();
+            m.report();
             try {
                 rs.serializeResults(m.toString(),m.getResultsArr());
             } catch (FileNotFoundException e) {

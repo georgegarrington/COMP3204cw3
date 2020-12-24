@@ -1,7 +1,9 @@
 package uk.ac.soton.ecs.model;
 
 import de.bwaldvogel.liblinear.SolverType;
+import opennlp.tools.dictionary.serializer.Entry;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hadoop.util.bloom.Key;
 import org.openimaj.data.dataset.VFSGroupDataset;
 import org.openimaj.data.dataset.VFSListDataset;
 import org.openimaj.experiment.dataset.split.GroupedRandomSplitter;
@@ -42,15 +44,34 @@ public class Run2 implements Model {
 
     public void run(){
 
-        //The sampled patch vectors for each image
-        List<List<float[]>> imagePatchVectors = new ArrayList<List<float[]>>();
 
+        /*
+        //Get the total number of images in the training data set
+        int totalSize = 0;
+        for(String str : trainingData.getGroups()){
+            totalSize += trainingData.get(trainingData).size();
+        }*/
+
+        //float[][] imagePatchVectors = new float[totalSize][];
+
+        //The sampled patch vectors for each image
+        List<float[]> imagePatchVectors = new ArrayList();
+
+        //int i = 0;
+
+        System.out.println("Starting patch sampling...");
+        int i = 0;
         for(FImage image : trainingData){
             List<float[]> patchVectors = getPatchSamples(image, 20);
+            System.out.println("Just finished sampling image: " + i);
+            i++;
+            imagePatchVectors.addAll(patchVectors);
         }
 
         FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(500);
+        System.out.println("Now going to try the array bit that wasn't working");
         FloatCentroidsResult clusters = fkm.cluster(imagePatchVectors.toArray(new float[][]{}));
+        System.out.println("It worked :)");
         HardAssigner<float[], float[], IntFloatPair> assigner = clusters.defaultHardAssigner();
         classifier = new LiblinearAnnotator<FImage, String>(
                 new WordsExtractor(assigner), LiblinearAnnotator.Mode.MULTICLASS, SolverType.L2R_L2LOSS_SVC,
@@ -98,11 +119,9 @@ public class Run2 implements Model {
      * @return
      */
     public List<float[]> getPatchSamples(FImage image, int n){
-
         List<float[]> allPatches = getPatchVectors(image);
         Collections.shuffle(allPatches);
         return allPatches.subList(0, n);
-
     }
 
     /**

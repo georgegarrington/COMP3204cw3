@@ -16,7 +16,7 @@ public interface Model {
      * the testing data has been classified into predictions,
      * report the accuracy of the model
      */
-    //public void report();
+    public void report();
 
     public List<String> getResultsArr();
 
