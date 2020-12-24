@@ -62,13 +62,13 @@ public class Run2 implements Model {
         System.out.println("Starting patch sampling...");
         int i = 0;
         for(FImage image : trainingData){
-            List<float[]> patchVectors = getPatchSamples(image, 20);
+            List<float[]> patchVectors = getPatchSamples(image, 50);
             System.out.println("Just finished sampling image: " + i);
             i++;
             imagePatchVectors.addAll(patchVectors);
         }
 
-        FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(500);
+        FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(600);
         System.out.println("Now going to try the array bit that wasn't working");
         FloatCentroidsResult clusters = fkm.cluster(imagePatchVectors.toArray(new float[][]{}));
         System.out.println("It worked :)");
