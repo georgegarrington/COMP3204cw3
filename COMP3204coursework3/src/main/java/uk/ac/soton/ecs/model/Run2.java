@@ -1,15 +1,20 @@
 package uk.ac.soton.ecs.model;
 
+import de.bwaldvogel.liblinear.SolverType;
 import org.openimaj.data.dataset.VFSGroupDataset;
 import org.openimaj.data.dataset.VFSListDataset;
 import org.openimaj.feature.FeatureExtractor;
 import org.openimaj.feature.FloatFV;
+import org.openimaj.feature.SparseIntFV;
 import org.openimaj.image.FImage;
 import org.openimaj.image.feature.local.aggregate.BagOfVisualWords;
 import org.openimaj.image.pixel.sampling.RectangleSampler;
 import org.openimaj.image.processing.algorithm.MeanCenter;
 import org.openimaj.math.geometry.shape.Rectangle;
+import org.openimaj.ml.annotation.linear.LiblinearAnnotator;
+import org.openimaj.ml.clustering.FloatCentroidsResult;
 import org.openimaj.ml.clustering.assignment.HardAssigner;
+import org.openimaj.ml.clustering.kmeans.FloatKMeans;
 import org.openimaj.util.pair.IntFloatPair;
 
 import java.util.ArrayList;
@@ -30,7 +35,6 @@ public class Run2 implements Model {
 
     public void run(){
 
-        /*
         //The sampled patch vectors for each image
         List<List<float[]>> imagePatchVectors = new ArrayList<List<float[]>>();
 
@@ -41,8 +45,12 @@ public class Run2 implements Model {
         FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(500);
         FloatCentroidsResult clusters = fkm.cluster(imagePatchVectors.toArray(new float[][]{}));
         HardAssigner<float[], float[], IntFloatPair> assigner = clusters.defaultHardAssigner();
-        */
+        LiblinearAnnotator classifier = new LiblinearAnnotator<FImage, String>(
+                new WordsExtractor(assigner), LiblinearAnnotator.Mode.MULTICLASS, SolverType.L2R_L2LOSS_SVC,
+                1, 0.00001
+        );
 
+        classifier.train(trainingData);
 
     }
 
@@ -54,6 +62,21 @@ public class Run2 implements Model {
             List<LocalFeatureImpl<SpatialLocation, FloatFV>> samples = getPatchSamples(image, 30);
 
         }*/
+
+    }
+
+    /**
+     * Take a sample of size n patches from the image (in the form
+     * of the feature vectors of the patches)
+     * @param image
+     * @param n
+     * @return
+     */
+    public List<float[]> getPatchSamples(FImage image, int n){
+
+        List<float[]> allPatches = getPatchVectors(image);
+        Collections.shuffle(allPatches);
+        return allPatches.subList(0, n);
 
     }
 
@@ -102,7 +125,7 @@ public class Run2 implements Model {
         //Collections.shuffle(patchVectors);
         //return patchVectors.subList(0, n);
 
-        return patchVectors
+        return patchVectors;
 
     }
 
@@ -133,25 +156,18 @@ public class Run2 implements Model {
         return "run2";
     }
 
-    class WordsExtractor implements FeatureExtractor<FloatFV, FImage> {
+    class WordsExtractor implements FeatureExtractor<SparseIntFV, FImage> {
 
         BagOfVisualWords<float[]> bag;
 
-        WordsExtractor(Run2 run2, HardAssigner<float[], float[], IntFloatPair> assigner){
-
+        public WordsExtractor(HardAssigner<float[], float[], IntFloatPair> assigner){
             bag = new BagOfVisualWords(assigner);
-
         }
 
         @Override
-        public FloatFV extractFeature(FImage object) {
-
-            List<float[]> patchSamples = getPatchVectors(object);
-
-
-
-            return null;
-
+        public SparseIntFV extractFeature(FImage object) {
+            List<float[]> patchSamples = getPatchSamples(object, 20);
+            return bag.aggregateVectorsRaw(patchSamples);
         }
 
     }
