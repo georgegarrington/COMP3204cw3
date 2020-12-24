@@ -2,15 +2,15 @@ package uk.ac.soton.ecs.model;
 
 import org.openimaj.data.dataset.VFSGroupDataset;
 import org.openimaj.data.dataset.VFSListDataset;
-import org.openimaj.experiment.dataset.sampling.GroupedUniformRandomisedSampler;
+import org.openimaj.feature.FeatureExtractor;
 import org.openimaj.feature.FloatFV;
-import org.openimaj.feature.local.LocalFeatureImpl;
-import org.openimaj.feature.local.SpatialLocation;
 import org.openimaj.image.FImage;
-import org.openimaj.image.feature.local.keypoints.FloatKeypoint;
+import org.openimaj.image.feature.local.aggregate.BagOfVisualWords;
 import org.openimaj.image.pixel.sampling.RectangleSampler;
 import org.openimaj.image.processing.algorithm.MeanCenter;
 import org.openimaj.math.geometry.shape.Rectangle;
+import org.openimaj.ml.clustering.assignment.HardAssigner;
+import org.openimaj.util.pair.IntFloatPair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,12 +30,19 @@ public class Run2 implements Model {
 
     public void run(){
 
+        /*
+        //The sampled patch vectors for each image
+        List<List<float[]>> imagePatchVectors = new ArrayList<List<float[]>>();
+
         for(FImage image : trainingData){
-
-            List<FloatKeypoint> samples = getPatchSamples(image, 30);
-
-
+            List<float[]> patchVectors = getPatchSamples(image, 20);
         }
+
+        FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(500);
+        FloatCentroidsResult clusters = fkm.cluster(imagePatchVectors.toArray(new float[][]{}));
+        HardAssigner<float[], float[], IntFloatPair> assigner = clusters.defaultHardAssigner();
+        */
+
 
     }
 
@@ -56,11 +63,13 @@ public class Run2 implements Model {
      * @param image
      * @return
      */
-    public List<FloatKeypoint> getPatchSamples(FImage image, int n){
+    public List<float[]> getPatchVectors(FImage image){
 
         List<Rectangle> patchRectangles = getPatchRectangles(image);
-        List<FloatKeypoint> keyPoints = new ArrayList<>();
+        //List<FloatKeypoint> keyPoints = new ArrayList<>();
         //List<LocalFeatureImpl<SpatialLocation, FloatFV>> featureLocs = new ArrayList();
+
+        List<float[]> patchVectors = new ArrayList();
 
         for(Rectangle r : patchRectangles){
 
@@ -84,14 +93,16 @@ public class Run2 implements Model {
             //A list of pairs of spatial location and feature vector
             //LocalFeatureImpl<SpatialLocation, FloatFV> featureLoc = new LocalFeatureImpl(loc, fv);
 
-            FloatKeypoint keyPoint = new FloatKeypoint(r.x, r.y, 0, 1, patch.getFloatPixelVector());
-            keyPoints.add(keyPoint);
+            //FloatKeypoint keyPoint = new FloatKeypoint(r.x, r.y, 0, 1, patch.getFloatPixelVector());
+            patchVectors.add(patch.getFloatPixelVector());
 
         }
 
-        //In order to get a random sample, shuffle the list and take the first n
-        Collections.shuffle(keyPoints);
-        return keyPoints.subList(0, n);
+        //In order to get a random sample of size n, shuffle the list and take the first n
+        //Collections.shuffle(patchVectors);
+        //return patchVectors.subList(0, n);
+
+        return patchVectors
 
     }
 
@@ -120,6 +131,29 @@ public class Run2 implements Model {
 
     public String toString(){
         return "run2";
+    }
+
+    class WordsExtractor implements FeatureExtractor<FloatFV, FImage> {
+
+        BagOfVisualWords<float[]> bag;
+
+        WordsExtractor(Run2 run2, HardAssigner<float[], float[], IntFloatPair> assigner){
+
+            bag = new BagOfVisualWords(assigner);
+
+        }
+
+        @Override
+        public FloatFV extractFeature(FImage object) {
+
+            List<float[]> patchSamples = getPatchVectors(object);
+
+
+
+            return null;
+
+        }
+
     }
 
 }
