@@ -69,6 +69,7 @@ from keras import initializers, regularizers, constraints
 from keras.engine.input_layer import Input
 from keras import backend as K
 from keras.models import Model
+from imutils import paths
 
 
 
@@ -100,9 +101,9 @@ model = define_model()
 datagen = ImageDataGenerator(rescale=1.0/255.0)
 
 # prepare iterators
-train_it = datagen.flow_from_directory('training_test/',
+train_it = datagen.flow_from_directory('training/',
     class_mode='categorical', batch_size=128, target_size=(224, 224))
-test_it = datagen.flow_from_directory('testing_test/',
+test_it = datagen.flow_from_directory('testing/',
     class_mode='categorical', batch_size=128, target_size=(224, 224))
 
 
@@ -150,6 +151,59 @@ model.compile(loss='categorical_crossentropy', optimizer=optimizers.Adam(lr=0.00
 history = model.fit_generator(train_it, steps_per_epoch=len(train_it), validation_data=test_it, validation_steps=len(test_it), epochs=epochs, verbose=1)
 _, acc = model.evaluate_generator(test_it, steps=len(test_it), verbose=0)
 print('> %.3f' % (acc * 100.0))
+
+
+
+from imutils import paths
+imagePaths = list(paths.list_images('\\testing'))
+
+for test_image in imagePaths:
+   print("d")
+   result = model.predict(test_image)
+   print(result)
+
+
+test_generator = datagen.flow_from_directory(
+    directory='tst',
+    target_size=(224,224),
+    color_mode="rgb",
+    batch_size=32,
+    class_mode=None,
+    shuffle=False
+)
+
+
+test_generator.reset()
+
+
+pred=model.predict_generator(test_generator,verbose=1)
+
+
+predicted_class_indices=np.argmax(pred,axis=1)
+
+
+labels = (test_it.class_indices)
+labels = dict((v,k) for k,v in labels.items())
+predictions = [labels[k] for k in predicted_class_indices]
+
+
+filenames=test_generator.filenames
+
+l = []
+for f in filenames:
+    a = f[8:]
+    l.append(a)
+
+results2=pd.DataFrame({"Filename":l,
+                      "Predictions":predictions})
+
+
+
+print(results2)
+
+
+
+
 
 
 
