@@ -161,7 +161,13 @@ public class Run2 extends Model {
 
         @Override
         public SparseIntFV extractFeature(FImage image) {
+
+            /*
+            Return a massive aggregated vector using the bag of words of samples of
+            all images and ALL the patch vectors for this image
+             */
             return aggregator.aggregate(getPatchVectors(image), image.getBounds());
+        
         }
 
     }
