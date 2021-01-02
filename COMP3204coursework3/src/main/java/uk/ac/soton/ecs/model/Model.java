@@ -42,18 +42,20 @@ public abstract class Model {
      * the testing data has been classified into predictions,
      * report the accuracy of the model
      */
-    protected void report(Classifier classifier){
+    protected double report(Classifier classifier){
 
-        System.out.println("Starting evaluation...");
+        //System.out.println("Starting evaluation...");
         Calendar start = Calendar.getInstance();
         ClassificationEvaluator<CMResult<String>, String, FImage> folds =
                 new ClassificationEvaluator(classifier, splitter.getTestDataset(),
                         new CMAnalyser<FImage, String>(CMAnalyser.Strategy.SINGLE));
-        System.out.println("\n-----------------------REPORT-----------------------\n");
-        System.out.println(folds.analyse(folds.evaluate()).getSummaryReport());
+        //System.out.println("\n-----------------------REPORT-----------------------\n");
+        CMResult res = folds.analyse(folds.evaluate());
+        //System.out.println(res.getSummaryReport());
         Calendar finish = Calendar.getInstance();
-        System.out.println("Evaluation finished in: " + (finish.getTimeInMillis() - start.getTimeInMillis()) / 1000);
-
+        //System.out.println("Evaluation finished in: " + (finish.getTimeInMillis() - start.getTimeInMillis()) / 1000);
+        return res.getMatrix().getAccuracy();
+        
     }
 
     /**

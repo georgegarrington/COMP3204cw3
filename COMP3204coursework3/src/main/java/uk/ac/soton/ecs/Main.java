@@ -5,13 +5,9 @@ import org.openimaj.data.dataset.VFSGroupDataset;
 import org.openimaj.data.dataset.VFSListDataset;
 import org.openimaj.image.FImage;
 import uk.ac.soton.ecs.io.DataLoader;
-import uk.ac.soton.ecs.io.ResultSerializer;
-import uk.ac.soton.ecs.model.Model;
 import uk.ac.soton.ecs.model.Run1;
-import uk.ac.soton.ecs.model.Run2;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 public class Main {
 
@@ -29,6 +25,9 @@ public class Main {
         VFSListDataset<FImage> testingData =
                 loader.loadTestingData(GEORGE_TESTING);
 
+        new Run1(trainingData, testingData).testResolutions();
+
+        /*
         Model[] models = new Model[]{
             new Run1(trainingData, testingData),
             //new Run2(trainingData, testingData)
@@ -40,7 +39,8 @@ public class Main {
         for(int i = 0; i < models.length; i++){
 
             models[i].run();
-            //models[i].report();
+            ((Run1) models[i]).custom();
+            models[i].report();
             
             try {
                 rs.serializeResults("run" + (i + 1), models[i].getResultsArr());
@@ -48,7 +48,7 @@ public class Main {
                 e.printStackTrace();
             }
 
-        }
+        }*/
 
     }
 

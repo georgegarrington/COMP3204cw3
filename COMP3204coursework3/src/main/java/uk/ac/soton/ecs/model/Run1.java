@@ -20,15 +20,15 @@ import java.util.Set;
 
 public class Run1 extends Model {
 
-    private static int K = 2;
-    private static final int RESOLUTION = 16;
+    private static final int K = 9;
+    private static int RESOLUTION = 16;
     protected KNNAnnotator<FImage, String, FloatFV> classifier;
 
     public Run1(VFSGroupDataset<FImage> trainingData, VFSListDataset<FImage> testingData){
         this.testingData = testingData;
         classifier = KNNAnnotator.create(new Flattener(), FloatFVComparison.EUCLIDEAN, K);
         //Use cross validation on the training data to estimate the accuracy of the model
-        splitter = new GroupedRandomSplitter(trainingData, 99, 0,1);
+        splitter = new GroupedRandomSplitter(trainingData, 80, 0,20);
     }
 
     /**
@@ -57,6 +57,31 @@ public class Run1 extends Model {
     @Override
     public List<String> getResultsArr(){
         return super.getResultsArr(classifier);
+    }
+
+    public void testResolutions(){
+
+        int[] resolutions = {4,8,16,24,32};
+
+        for(int i : resolutions){
+
+            this.RESOLUTION = i;
+
+            double sumAccuracy = 0.0;
+
+            for(int j = 0; j < 10; j++){
+
+                classifier = KNNAnnotator.create(new Flattener(), FloatFVComparison.EUCLIDEAN, K);
+                classifier.trainMultiClass(splitter.getTrainingDataset());
+                System.out.println("Now evaluating for resolution: " + RESOLUTION);
+                sumAccuracy += super.report(classifier);
+
+            }
+
+            System.out.println("ACCURACY FOR RESOLUTION = " + RESOLUTION + " is " + (sumAccuracy / 10.0));
+
+        }
+
     }
 
     /**
