@@ -55,7 +55,7 @@ public abstract class Model {
         Calendar finish = Calendar.getInstance();
         //System.out.println("Evaluation finished in: " + (finish.getTimeInMillis() - start.getTimeInMillis()) / 1000);
         return res.getMatrix().getAccuracy();
-        
+
     }
 
     /**

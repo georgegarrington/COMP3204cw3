@@ -25,6 +25,7 @@ public class Run1 extends Model {
     protected KNNAnnotator<FImage, String, FloatFV> classifier;
 
     public Run1(VFSGroupDataset<FImage> trainingData, VFSListDataset<FImage> testingData){
+        this.trainingData = trainingData;
         this.testingData = testingData;
         classifier = KNNAnnotator.create(new Flattener(), FloatFVComparison.EUCLIDEAN, K);
         //Use cross validation on the training data to estimate the accuracy of the model
@@ -71,9 +72,12 @@ public class Run1 extends Model {
 
             for(int j = 0; j < 10; j++){
 
+                splitter = new GroupedRandomSplitter(trainingData, 80, 0, 20);
                 classifier = KNNAnnotator.create(new Flattener(), FloatFVComparison.EUCLIDEAN, K);
                 classifier.trainMultiClass(splitter.getTrainingDataset());
-                System.out.println("Now evaluating for resolution: " + RESOLUTION);
+                System.out.println("Now evaluating for resolution: " + RESOLUTION + ", iteration " + j);
+                double accuracy = super.report(classifier);
+                System.out.println("Accuracy for iteration " + j + " is " + accuracy);
                 sumAccuracy += super.report(classifier);
 
             }
