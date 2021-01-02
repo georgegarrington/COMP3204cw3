@@ -18,7 +18,7 @@ public class DataLoader {
      * are in, use for supervised learning methods
      * @return
      */
-    public VFSGroupDataset<FImage> loadSupervisedTrainingData(String dirPath){
+    public VFSGroupDataset<FImage> loadTrainingData(String dirPath){
         VFSGroupDataset<FImage> classes = null;
         try {
             classes = new VFSGroupDataset<FImage>(dirPath, ImageUtilities.FIMAGE_READER);
@@ -27,16 +27,6 @@ public class DataLoader {
         }
         return classes;
     }
-
-    /**
-     * Also imports just a list of images so does the same thing as loading testing data
-     * @param dirPath
-     * @return
-     */
-    public VFSListDataset<FImage> loadUnsupervisedTrainingData(String dirPath){
-        return loadTestingData(dirPath);
-    }
-    // ^^^ think this is unnecessary! Just flatten the group training data into a single list in the model classes
 
     /**
      * Testing data is unlabelled, so load it as just one list of images

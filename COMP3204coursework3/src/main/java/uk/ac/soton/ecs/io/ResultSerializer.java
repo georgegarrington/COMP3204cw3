@@ -11,24 +11,18 @@ import java.util.List;
 public class ResultSerializer {
 
     /**
-     *
+     * Save the list of results to the specified file
      *
      * @param filename
      * @param results
      * @throws FileNotFoundException
      */
     public void serializeResults(String filename, List<String> results) throws FileNotFoundException {
-
         PrintWriter pw = new PrintWriter(new File(filename + ".txt"));
-        /*
-        for(int i = 0; i < results.size(); i++){
-            pw.println(results.get(i));
-        }*/
         for(String s : results){
             pw.println(s);
         }
         pw.close();
-
     }
 
 }

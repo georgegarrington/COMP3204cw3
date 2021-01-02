@@ -11,6 +11,7 @@ import org.openimaj.experiment.evaluation.classification.analysers.confusionmatr
 import org.openimaj.feature.*;
 import org.openimaj.image.FImage;
 import org.openimaj.image.processing.resize.ResizeProcessor;
+import org.openimaj.ml.annotation.AbstractAnnotator;
 import org.openimaj.ml.annotation.basic.KNNAnnotator;
 
 import java.util.ArrayList;
@@ -41,48 +42,21 @@ public class Run1 extends Model {
     }
 
     /**
-     * After the model has been trained on the training data and
-     * the testing data has been classified into predictions,
-     * report the accuracy of the model by doing k-fold cross validation
-     * on the training data
+     * The code is the same for Run1 and Run2, so make it a super method
+     * instead
      */
     @Override
     public void report(){
-        ClassificationEvaluator<CMResult<String>, String, FImage> folds =
-            new ClassificationEvaluator(classifier, splitter.getTestDataset(),
-                new CMAnalyser<FImage, String>(CMAnalyser.Strategy.SINGLE));
-        System.out.println("\n--------------------RUN 1 REPORT--------------------\n");
-        System.out.println(folds.analyse(folds.evaluate()).getSummaryReport());
+        super.report(classifier);
     }
 
+    /**
+     * The code is the same for Run1 and Run2, so make it a super method
+     * instead
+     */
     @Override
     public List<String> getResultsArr(){
-
-        List<String> results = new ArrayList<String>();
-        FileObject[] arr = testingData.getFileObjects();
-        String[] names = new String[arr.length];
-
-        for(int i = 0; i < arr.length; i++){
-            names[i] = arr[i].getName().getBaseName();
-        }
-
-        for(int i = 0; i < names.length; i++){
-
-            FImage image = testingData.get(i);
-            String name = names[i];
-            Set<String> predictedClasses = classifier.classify(image).getPredictedClasses();
-
-            System.out.println("The number of predicted classes is: " + predictedClasses.size());
-            String str = name + " " + predictedClasses.toArray()[0];
-
-            results.add(str);
-            System.out.println("Just classified an image");
-            System.out.println(str);
-
-        }
-
-        return results;
-
+        return super.getResultsArr(classifier);
     }
 
     /**
@@ -98,6 +72,7 @@ public class Run1 extends Model {
          */
         @Override
         public FloatFV extractFeature(FImage image) {
+
             int sqSize = Math.min(image.getWidth(), image.getHeight());
 
             // crops each image to a square about the centre
@@ -109,12 +84,9 @@ public class Run1 extends Model {
 
             //Normalise it first so that it has 0 mean and unit length, Flatten the pixel matrix into a vector
             return new FloatFV(shrunk.normalise().getFloatPixelVector());
+
         }
 
-    }
-
-    public String toString(){
-        return "run1";
     }
 
 }

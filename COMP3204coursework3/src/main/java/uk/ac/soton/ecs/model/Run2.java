@@ -46,22 +46,30 @@ public class Run2 extends Model {
     @Override
     public void run(){
 
-        List<LocalFeatureList<FloatKeypoint>> patchVectorsForAllImages = new ArrayList();
+        List<LocalFeatureList<FloatKeypoint>> patchSamplesForAllImages = new ArrayList();
 
         System.out.println("Getting the patch samples from each image...");
         int counter = 0;
         for(FImage i : trainingData){
-            patchVectorsForAllImages.add(getPatchSamples(i, 30));
+            patchSamplesForAllImages.add(getPatchSamples(i, 30));
             System.out.println("Finished getting the samples from image: " + counter);
             counter++;
         }
 
         FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(600);
-        DataSource<float[]> src = new LocalFeatureListDataSource<FloatKeypoint, float[]>(patchVectorsForAllImages);
+
+        /*
+        We want to feed multiple lists of features to the k means
+        clustering algorithm so use this helper class to handle this
+         */
+        LocalFeatureListDataSource<FloatKeypoint, float[]> src = new LocalFeatureListDataSource(patchSamplesForAllImages);
+
         System.out.println("Starting clustering...");
-        FloatCentroidsResult clusters = fkm.cluster(src);
-        System.out.println("Finished clustering...");
-        HardAssigner<float[], float[], IntFloatPair> assigner = clusters.defaultHardAssigner();
+        //Do the k means clustering and then get the hard assigner from it
+        HardAssigner<float[], float[], IntFloatPair> assigner = fkm.cluster(src).defaultHardAssigner();
+        System.out.println("Finished clustering.");
+
+        //Use the recommended C value of 1 and a very small epsilon value
         classifier = new LiblinearAnnotator<FImage, String>(
                 new WordsExtractor(assigner), LiblinearAnnotator.Mode.MULTICLASS, SolverType.L2R_L2LOSS_SVC,
                 1, 0.00001
@@ -72,19 +80,13 @@ public class Run2 extends Model {
 
     }
 
+    /**
+     * The code is the same for Run1 and Run2, so make it a super method
+     * instead
+     */
     @Override
     public void report(){
-
-        System.out.println("Starting evaluation...");
-        Calendar start = Calendar.getInstance();
-        ClassificationEvaluator<CMResult<String>, String, FImage> folds =
-                new ClassificationEvaluator(classifier, splitter.getTestDataset(),
-                        new CMAnalyser<FImage, String>(CMAnalyser.Strategy.SINGLE));
-        System.out.println("\n--------------------RUN 2 REPORT--------------------\n");
-        System.out.println(folds.analyse(folds.evaluate()).getSummaryReport());
-        Calendar finish = Calendar.getInstance();
-        System.out.println("Evaluation finished in: " + (finish.getTimeInMillis() - start.getTimeInMillis()) / 1000);
-
+        super.report(classifier);
     }
 
     /**
@@ -109,6 +111,11 @@ public class Run2 extends Model {
 
         List<Rectangle> patchRectangles =
                 new RectangleSampler(image, STEP, STEP, PATCH_SIZE, PATCH_SIZE).allRectangles();
+
+        /*
+        To make a data source from a list of local features, openimaj requires
+        us to use this specific child class of a list
+        */
         MemoryLocalFeatureList<FloatKeypoint> patchVectors = new MemoryLocalFeatureList();
 
         for(Rectangle r : patchRectangles){
@@ -119,6 +126,10 @@ public class Run2 extends Model {
              */
             FImage patch = image.extractROI(r).process(new MeanCenter()).normalise();
 
+            /*
+            Store the location of the keypoint (from the coordinates of the rectangle)
+            aswell as its pixels. There is never any tilting so orientation is 0 and the scale is always 1
+             */
             FloatKeypoint keyPoint = new FloatKeypoint(r.x, r.y, 0, 1, patch.getFloatPixelVector());
             patchVectors.add(keyPoint);
 
@@ -129,48 +140,28 @@ public class Run2 extends Model {
     }
 
     @Override
+    /**
+     * The code is the same for Run1 and Run2, so make it a super method
+     * instead
+     */
     public List<String> getResultsArr(){
-
-        List<String> results = new ArrayList<String>();
-        FileObject[] arr = testingData.getFileObjects();
-        String[] names = new String[arr.length];
-
-        for(int i = 0; i < arr.length; i++){
-            names[i] = arr[i].getName().getBaseName();
-        }
-
-        for(int i = 0; i < names.length; i++){
-
-            FImage image = testingData.get(i);
-            Set<String> predictedClasses = classifier.classify(image).getPredictedClasses();
-            //If there are multiple classes predicted then just choose the first one in the array form of the set
-            results.add(names[i] + " " + predictedClasses.toArray()[0]);
-
-        }
-
-        return results;
-
+        return super.getResultsArr(classifier);
     }
 
-    public String toString(){
-        return "run2";
-    }
-
+    /**
+     * Create a bag of visual words for each image
+     */
     class WordsExtractor implements FeatureExtractor<SparseIntFV, FImage> {
 
-        BagOfVisualWords<float[]> bag;
+        BlockSpatialAggregator<float[], SparseIntFV> aggregator;
 
         public WordsExtractor(HardAssigner<float[], float[], IntFloatPair> assigner){
-            bag = new BagOfVisualWords(assigner);
+            aggregator = new BlockSpatialAggregator(new BagOfVisualWords(assigner), 2, 2);
         }
 
         @Override
         public SparseIntFV extractFeature(FImage image) {
-
-            BlockSpatialAggregator<float[], SparseIntFV> aggegator =
-                    new BlockSpatialAggregator<float[], SparseIntFV>(bag, 2, 2);
-            return aggegator.aggregate(getPatchVectors(image), image.getBounds());
-
+            return aggregator.aggregate(getPatchVectors(image), image.getBounds());
         }
 
     }
