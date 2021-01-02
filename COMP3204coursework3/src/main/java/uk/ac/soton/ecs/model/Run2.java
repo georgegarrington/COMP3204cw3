@@ -56,7 +56,7 @@ public class Run2 extends Model {
             counter++;
         }
 
-        FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(600);
+        FloatKMeans fkm = FloatKMeans.createKDTreeEnsemble(500);
 
         /*
         We want to feed multiple lists of features to the k means
@@ -71,8 +71,8 @@ public class Run2 extends Model {
 
         //Use the recommended C value of 1 and a very small epsilon value
         classifier = new LiblinearAnnotator<FImage, String>(
-                new WordsExtractor(assigner), LiblinearAnnotator.Mode.MULTICLASS, SolverType.L2R_L2LOSS_SVC,
-                1, 0.00001
+            new WordsExtractor(assigner), LiblinearAnnotator.Mode.MULTICLASS, SolverType.L2R_L2LOSS_SVC,
+            1, 0.00001
         );
         System.out.println("Started training the model...");
         classifier.train(splitter.getTrainingDataset());
@@ -167,7 +167,7 @@ public class Run2 extends Model {
             all images and ALL the patch vectors for this image
              */
             return aggregator.aggregate(getPatchVectors(image), image.getBounds());
-        
+
         }
 
     }

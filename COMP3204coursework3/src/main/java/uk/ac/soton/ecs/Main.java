@@ -31,19 +31,19 @@ public class Main {
 
         Model[] models = new Model[]{
             new Run1(trainingData, testingData),
-            new Run2(trainingData, testingData)
+            //new Run2(trainingData, testingData)
         };
 
         //Use for saving the results to a file
         ResultSerializer rs = new ResultSerializer();
 
-        for(int i = 1; i <= models.length; i++){
+        for(int i = 0; i < models.length; i++){
 
             models[i].run();
-            models[i].report();
+            //models[i].report();
             
             try {
-                rs.serializeResults("run" + i, models[i].getResultsArr());
+                rs.serializeResults("run" + (i + 1), models[i].getResultsArr());
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }

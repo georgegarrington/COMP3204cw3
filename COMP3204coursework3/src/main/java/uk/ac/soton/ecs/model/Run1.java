@@ -28,7 +28,7 @@ public class Run1 extends Model {
         this.testingData = testingData;
         classifier = KNNAnnotator.create(new Flattener(), FloatFVComparison.EUCLIDEAN, K);
         //Use cross validation on the training data to estimate the accuracy of the model
-        splitter = new GroupedRandomSplitter(trainingData, 80, 0,20);
+        splitter = new GroupedRandomSplitter(trainingData, 99, 0,1);
     }
 
     /**
