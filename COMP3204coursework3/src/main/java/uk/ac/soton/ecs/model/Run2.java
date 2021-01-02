@@ -33,8 +33,8 @@ import java.util.*;
 
 public class Run2 extends Model {
 
-    private static final int PATCH_SIZE = 8;
-    private static final int STEP = 4;
+    private static final int PATCH_SIZE = 4;
+    private static final int STEP = 2;
     private LiblinearAnnotator classifier;
 
     public Run2(VFSGroupDataset<FImage> trainingData, VFSListDataset<FImage> testingData){
@@ -69,7 +69,7 @@ public class Run2 extends Model {
         HardAssigner<float[], float[], IntFloatPair> assigner = fkm.cluster(src).defaultHardAssigner();
         System.out.println("Finished clustering.");
 
-        //Use the recommended C value of 1 and a very small epsilon value
+        //Use the standard C value of 1 and a very small epsilon value
         classifier = new LiblinearAnnotator<FImage, String>(
             new WordsExtractor(assigner), LiblinearAnnotator.Mode.MULTICLASS, SolverType.L2R_L2LOSS_SVC,
             1, 0.00001
