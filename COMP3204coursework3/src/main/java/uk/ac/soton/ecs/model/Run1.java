@@ -15,6 +15,7 @@ import org.openimaj.ml.annotation.AbstractAnnotator;
 import org.openimaj.ml.annotation.basic.KNNAnnotator;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +48,15 @@ public class Run1 extends Model {
      */
     @Override
     public void report(){
-        super.report(classifier);
+        System.out.println("Starting evaluation...");
+        Calendar start = Calendar.getInstance();
+        ClassificationEvaluator<CMResult<String>, String, FImage> folds =
+                new ClassificationEvaluator(classifier, splitter.getTestDataset(),
+                        new CMAnalyser<FImage, String>(CMAnalyser.Strategy.SINGLE));
+        System.out.println("\n-----------------------REPORT-----------------------\n");
+        System.out.println(folds.analyse(folds.evaluate()).getSummaryReport());
+        Calendar finish = Calendar.getInstance();
+        System.out.println("Evaluation finished in: " + (finish.getTimeInMillis() - start.getTimeInMillis()) / 1000);
     }
 
     /**
@@ -56,7 +65,23 @@ public class Run1 extends Model {
      */
     @Override
     public List<String> getResultsArr(){
-        return super.getResultsArr(classifier);
+        List<String> results = new ArrayList<String>();
+        FileObject[] arr = testingData.getFileObjects();
+        String[] names = new String[arr.length];
+
+        for(int i = 0; i < arr.length; i++){
+            names[i] = arr[i].getName().getBaseName();
+        }
+
+        for(int i = 0; i < names.length; i++){
+
+            FImage image = testingData.get(i);
+            Set<String> predictedClasses = classifier.classify(image).getPredictedClasses();
+            //If there are multiple classes predicted then just choose the first one in the array form of the set
+            results.add(names[i] + " " + predictedClasses.toArray()[0]);
+
+        }
+        return results;
     }
 
     /**

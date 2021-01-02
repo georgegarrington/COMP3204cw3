@@ -41,7 +41,7 @@ public class Main {
 
             models[i].run();
             models[i].report();
-            
+
             try {
                 rs.serializeResults("run" + i, models[i].getResultsArr());
             } catch (FileNotFoundException e) {
